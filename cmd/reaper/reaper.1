@@ -1,0 +1,71 @@
+.TH REAPER 1
+.SH NAME
+reaper \- delete seldom accessed files
+.SH SYNOPSIS
+.B reaper
+[\fB\-expiry\fR=\fIDURATION\fR]
+[\fB\-dry-run\fR]
+[\fB\-show-cmd\fR]
+[\fB\-protect\fR=\fIGLOBS\fR]
+[\fB\-force\fR]
+[\fB\-irregular\fR]
+.I file
+.B ...
+.SH DESCRIPTION
+.B reaper
+identifies seldom accessed files that could be eligible for safe deletion.  It
+works by checking file last access time.  Several safeguards are in-place:
+
+.IP \[bu] 2
+it defaults to non-destructive operation until a command line flag instructs it
+to mutate the filesystem
+.IP \[bu]
+it does not cross file system boundaries (that is, mount points)
+.IP \[bu]
+it checks permissions first
+
+.SH OPTIONS
+.TP
+.BR \-expiry =\fIDURATION\fR
+Set the threshold for deleting based on how much time exists between now and
+their last access.  It accepts values suffixed with
+.BR ns ", "
+.BR us ", "
+.BR ms ", "
+.BR s ", "
+.BR m ", "
+.BR h "."
+Further described at https://golang.org/pkg/time/#ParseDuration.
+
+.TP
+.BR \-dry-run =\fIBOOL\fR
+Set whether the tool makes changes to the filesystem.
+.BR true " for no changes (default) or "
+.BR false " to actually modify the filesystem."
+
+.TP
+.BR \-show-cmd =\fIBOOL\fR
+Set whether the tool verbosely describes the commands it would run.
+.BR true " for descriptive reporting (default) or "
+.BR false " for silent execution."
+
+.TP
+.BR \-protect =\fIGLOBS\fR
+Set patterns for files that the tool should ignore.
+Each glob is separated by a
+.BR ":" " (colon)."
+Further described at https://golang.org/pkg/path/filepath/#Match.
+
+.TP
+.BR \-force =\fIBOOL\fR
+Set whether the tool ignores file permissions and attempts to delete.
+.BR true " for indiscriminate deletes or "
+.BR false " (default) for defensively checking permissions first."
+
+.TP
+.BR \-irregular =\fIBOOL\fR
+Set whether the tool scans irregular file types.
+These include character and block devices, etc.
+.BR true " for scanning irregular files "
+.BR false " (default) for ignoring irregular file types."
+
