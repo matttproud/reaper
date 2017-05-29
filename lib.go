@@ -94,6 +94,8 @@ func New(root string, opts ...Option) (*Reaper, error) {
 	return &r, nil
 }
 
+// Reaper scans the the filesystem for stale files that may be eligible for
+// safe deletion.
 type Reaper struct {
 	root             os.FileInfo
 	euid             int
@@ -112,10 +114,16 @@ type Reaper struct {
 	err error
 }
 
+// Err reports whether the scanner incurred an error. It is only set after the
+// Scan method returns false.
 func (r *Reaper) Err() error { return r.err }
 
+// Stop instructs the scanner to finish scanning if it hasn't already. It
+// should always be called.
 func (r *Reaper) Stop() { close(r.stop) }
 
+// Scan runs a single cycle of the scanning loop. If it returns false, there are
+// no more files to report.
 func (r *Reaper) Scan() bool {
 	select {
 	case res, ok := <-r.results:
@@ -128,6 +136,7 @@ func (r *Reaper) Scan() bool {
 	return false
 }
 
+// File returns this scan iteration's findings.
 func (r *Reaper) File() *Entry { return r.cur }
 
 var errStop = errors.New("reaper: stop")
@@ -150,16 +159,16 @@ func isWritable(f os.FileInfo, euid, egid int, groups map[int]bool, perm os.File
 	if euid == 0 {
 		return true
 	}
-	const S_IWOTH = 0002
-	if perm&S_IWOTH != 0 {
+	const otherWritable = 0002 //S_IWOTH
+	if perm&otherWritable != 0 {
 		return true
 	}
-	const S_IWUSR = 0200
-	if uid := uid(f); (perm&S_IWUSR != 0) && uid == euid {
+	const userWritable = 0200 // S_IWUSR
+	if uid := uid(f); (perm&userWritable != 0) && uid == euid {
 		return true
 	}
-	const S_IWGRP = 0020
-	if gid := gid(f); perm&S_IWGRP != 0 {
+	const groupWritable = 0020 // S_IWGRP
+	if gid := gid(f); perm&groupWritable != 0 {
 		if gid == egid {
 			return true
 		}

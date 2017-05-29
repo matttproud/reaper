@@ -31,3 +31,7 @@ As described in LICENSE, it is Apache License version 2.
 
 # Warranty
 See WARRANTY.
+
+[![Build Status](https://travis-ci.org/matttproud/reaper.svg?branch=master)](https://travis-ci.org/matttproud/reaper)
+
+[![GoDoc](https://godoc.org/github.com/matttproud/reaper?status.svg)](https://godoc.org/github.com/matttproud/reaper)
